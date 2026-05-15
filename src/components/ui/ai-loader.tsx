@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
-import type { RagStage } from "@/features/chat/hooks/useStreamingMessage";
+import type { RagStage } from "@/sites/b2c-site/chat/hooks/useStreamingMessage";
 
 // ─── Stage Config ─────────────────────────────────────────────────────────────
 

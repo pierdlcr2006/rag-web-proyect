@@ -26,8 +26,8 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import * as React from "react"
 import { LoadingBreadcrumb } from "./animated-loading-svg-text-shimmer";
-import { filesApi } from "@/features/files/api/files.api";
-import { useAuthStore } from "@/features/auth/store/authStore";
+import { filesApi } from "@/sites/b2c-site/files/api/files.api";
+import { useAuthStore } from "@/sites/b2c-site/auth/store/authStore";
 
 // --- Components & Hooks ---
 

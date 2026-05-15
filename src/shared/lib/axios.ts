@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { useAuthStore } from '@/features/auth/store/authStore';
+import { useAuthStore } from '@/sites/b2c-site/auth/store/authStore';
 
 const api = axios.create({
   baseURL: '/api',
@@ -9,6 +9,7 @@ const api = axios.create({
 // Request interceptor: add Authorization header
 api.interceptors.request.use((config) => {
   const token = useAuthStore.getState().accessToken;
+  console.log(`AXIOS REQUEST [${config.method?.toUpperCase()}] ${config.url}`, { hasToken: !!token });
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -23,7 +24,10 @@ api.interceptors.response.use(
     
     // If 401 and not already retrying
     if (error.response?.status === 401) {
-      if (!originalRequest._retry) {
+      // DON'T intercept refresh/login/logout requests to avoid infinite loops
+      const isAuthRequest = originalRequest.url?.includes('/auth/');
+      
+      if (!originalRequest._retry && !isAuthRequest) {
         originalRequest._retry = true;
         
         try {
@@ -38,6 +42,9 @@ api.interceptors.response.use(
           useAuthStore.getState().logout();
           return Promise.reject(refreshError);
         }
+      } else if (isAuthRequest) {
+        // If it was an auth request and it failed with 401, just logout
+        useAuthStore.getState().logout();
       } else {
         // If we already retried and still get 401, force logout
         useAuthStore.getState().logout();
