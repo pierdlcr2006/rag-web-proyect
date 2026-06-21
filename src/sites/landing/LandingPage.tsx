@@ -15,12 +15,14 @@ import Pricing from '../../components/landing/Pricing'
 import Contact from '../../components/landing/Contact'
 import ChatDemo from '../../components/landing/ChatDemo'
 import PageTransition, { type TransitionPhase } from '../../components/landing/PageTransition'
+import Preloader from '../../components/landing/Preloader'
 
 // Tiempos de la transición (copiados de k3studios: cubrir 0.5s + stagger, revelar 0.6s)
 const COVER_MS = 560
 const REVEAL_MS = 760
 
 export default function LandingPage() {
+  const [loading, setLoading] = useState(true)
   const [view, setView] = useState<'landing' | 'chat' | 'about'>('landing')
   const [activeCase, setActiveCase] = useState<string | null>(null)
   const [phase, setPhase] = useState<TransitionPhase>('idle')
@@ -29,6 +31,13 @@ export default function LandingPage() {
 
   // resetKey re-monta el sistema de animaciones (como recargar la página).
   useLandingAnimations(resetKey)
+
+  const handlePreloaderComplete = () => {
+    setLoading(false)
+    // Incrementar resetKey al terminar el preloader para que el hook de animación
+    // se ejecute sobre los elementos recién montados en el DOM.
+    setResetKey((k) => k + 1)
+  }
 
   const swap = (atCover: () => void) => {
     if (phase !== 'idle') return
@@ -97,28 +106,34 @@ export default function LandingPage() {
 
   return (
     <>
-      <Nav onNavigate={navigate} onHome={goHome} />
+      {loading ? (
+        <Preloader onComplete={handlePreloaderComplete} />
+      ) : (
+        <>
+          <Nav onNavigate={navigate} onHome={goHome} />
 
-      {/* Landing (se mantiene montada detrás del chat para conservar scroll y animaciones) */}
-      <div
-        className="bg-[#0A0A0A] text-[#F4F2ED] font-['Fira_Sans'] selection:bg-[#2563EB] selection:text-white overflow-x-clip"
-        aria-hidden={view === 'chat'}
-      >
-        <ProgressBar />
-        <Hero />
-        <AntiHallucination />
-        <Capabilities />
-        <Demo onLaunch={launch} />
-        <Cases />
-        <Faq />
-        <Pricing />
-        <Contact />
-      </div>
+          {/* Landing (se mantiene montada detrás del chat para conservar scroll y animaciones) */}
+          <div
+            className="bg-[#0A0A0A] text-[#F4F2ED] font-['Fira_Sans'] selection:bg-[#2563EB] selection:text-white overflow-x-clip"
+            aria-hidden={view === 'chat'}
+          >
+            <ProgressBar />
+            <Hero />
+            <AntiHallucination />
+            <Capabilities />
+            <Demo onLaunch={launch} />
+            <Cases />
+            <Faq />
+            <Pricing />
+            <Contact />
+          </div>
 
-      {view === 'chat' && activeCase && <ChatDemo caseId={activeCase} />}
-      {view === 'about' && <About />}
+          {view === 'chat' && activeCase && <ChatDemo caseId={activeCase} />}
+          {view === 'about' && <About />}
 
-      <PageTransition phase={phase} />
+          <PageTransition phase={phase} />
+        </>
+      )}
     </>
   )
 }
