@@ -1,5 +1,6 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import LandingPage from './sites/landing/LandingPage';
 import { LoginPage } from './sites/b2c-site/auth/pages/LoginPage';
 import { ChatPage } from './sites/b2c-site/chat/pages/ChatPage';
 import { BillingPage } from './sites/b2c-site/billing/pages/BillingPage';
@@ -80,26 +81,12 @@ function App() {
             </Route>
           </Route>
 
-          <Route path="/" element={<NavigateWithRole />} />
+          {/* Landing pública (TalKent AI) */}
+          <Route path="/" element={<LandingPage />} />
         </Routes>
       </BrowserRouter>
     </QueryClientProvider>
   );
 }
-
-const NavigateWithRole = () => {
-  const { user, isAuthenticated } = useAuthStore();
-  console.log('NavigateWithRole:', { isAuthenticated, role: user?.role });
-  
-  if (!isAuthenticated) return <Navigate to="/login" replace />;
-  
-  if (user?.role === UserRole.ADMIN) {
-    console.log('Redirecting to ADMIN');
-    return <Navigate to="/admin" replace />;
-  }
-  
-  console.log('Redirecting to CHAT');
-  return <Navigate to="/chat" replace />;
-};
 
 export default App;
