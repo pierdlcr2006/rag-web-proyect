@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore, UserRole } from '../store/authStore';
 import { Mail, Lock, Loader2, ArrowRight } from 'lucide-react';
+import Preloader from '../../../../components/landing/Preloader';
 
 const SLIDE_MS = 6000;
 
@@ -139,6 +140,8 @@ export const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showPreloader, setShowPreloader] = useState(false);
+  const [targetPath, setTargetPath] = useState<string | null>(null);
   const [slide, setSlide] = useState(0);
   const login = useAuthStore((state) => state.login);
   const navigate = useNavigate();
@@ -154,28 +157,35 @@ export const LoginPage: React.FC = () => {
     setIsLoading(true);
     try {
       const user = await login(email, password);
-      if (user?.role === UserRole.ADMIN) {
-        navigate('/admin');
-      } else {
-        navigate('/chat');
-      }
+      const path = user?.role === UserRole.ADMIN ? '/admin' : '/chat';
+      setTargetPath(path);
+      setShowPreloader(true);
     } catch (error) {
       console.error('LoginPage: Login failed', error);
       alert('Error al iniciar sesión. Verifica tus credenciales.');
-    } finally {
       setIsLoading(false);
     }
   };
 
+  const handlePreloaderComplete = () => {
+    if (targetPath) {
+      navigate(targetPath);
+    }
+  };
+
   return (
-    <div className="min-h-screen flex bg-[#0A0A0A] text-[#F4F2ED] font-body selection:bg-[#2563EB] selection:text-white">
-      {/* ── Panel visual (izquierda) ── */}
-      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden border-r-4 border-white/10">
-        {/* Fondo: aurora cobalt en movimiento + grid sutil + viñeta */}
-        <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#0A0A0A] via-[#0b1226] to-[#0A0A0A]" />
-          <div className="absolute -top-1/4 -left-1/4 w-[65%] h-[65%] rounded-full bg-[#2563EB]/30 blur-[130px] login-blob-1" />
-          <div className="absolute top-1/3 -right-1/4 w-[60%] h-[60%] rounded-full bg-[#2563EB]/20 blur-[150px] login-blob-2" />
+    <>
+      {showPreloader && (
+        <Preloader onComplete={handlePreloaderComplete} duration={1.2} />
+      )}
+      <div className="min-h-screen flex bg-[#0A0A0A] text-[#F4F2ED] font-body selection:bg-[#2563EB] selection:text-white">
+        {/* ── Panel visual (izquierda) ── */}
+        <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden border-r-4 border-white/10">
+          {/* Fondo: aurora cobalt en movimiento + grid sutil + viñeta */}
+          <div className="absolute inset-0">
+            <div className="absolute inset-0 bg-gradient-to-br from-[#0A0A0A] via-[#0b1226] to-[#0A0A0A]" />
+            <div className="absolute -top-1/4 -left-1/4 w-[65%] h-[65%] rounded-full bg-[#2563EB]/30 blur-[130px] login-blob-1" />
+            <div className="absolute top-1/3 -right-1/4 w-[60%] h-[60%] rounded-full bg-[#2563EB]/20 blur-[150px] login-blob-2" />
           <div className="absolute inset-0 opacity-[0.05] login-grid" />
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_50%,rgba(10,10,10,0.6))]" />
         </div>
@@ -344,6 +354,7 @@ export const LoginPage: React.FC = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 
