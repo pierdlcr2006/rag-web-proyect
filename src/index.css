@@ -471,3 +471,126 @@
 .typing-dot {
   animation: typingDot 1s infinite;
 }
+
+/* ── Login: fondo aurora + grid + progreso del carrusel ── */
+@keyframes loginBlob1 {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(22%, 16%) scale(1.2);
+  }
+}
+@keyframes loginBlob2 {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(-16%, -12%) scale(1.15);
+  }
+}
+.login-blob-1 {
+  animation: loginBlob1 16s ease-in-out infinite;
+}
+.login-blob-2 {
+  animation: loginBlob2 20s ease-in-out infinite;
+}
+.login-grid {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.5) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.5) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+@keyframes loginProgress {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}
+.login-progress {
+  animation: loginProgress 6s linear forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .login-blob-1,
+  .login-blob-2,
+  .login-progress {
+    animation: none;
+  }
+}
+
+/* ── Arte temático por tipo de archivo (panel del login) ── */
+@keyframes eqBar {
+  0%,
+  100% {
+    transform: scaleY(0.25);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+@keyframes artGrow {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+@keyframes artDash {
+  from {
+    stroke-dashoffset: 420;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes artRipple {
+  0% {
+    transform: scale(0.45);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1.7);
+    opacity: 0;
+  }
+}
+@keyframes artScan {
+  0% {
+    top: -25%;
+  }
+  100% {
+    top: 100%;
+  }
+}
+@keyframes artShine {
+  0% {
+    transform: translateX(-130%) rotate(8deg);
+  }
+  100% {
+    transform: translateX(240%) rotate(8deg);
+  }
+}
+@keyframes artSpinSlow {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.art-trend {
+  stroke-dasharray: 420;
+  animation: artDash 2.4s ease forwards;
+}
+/* Glow para que el arte (líneas finas) se funda con el fondo en vez de verse pegado */
+.slide-art {
+  color: #2563eb;
+  filter: drop-shadow(0 0 16px rgba(37, 99, 235, 0.55));
+}
+@media (prefers-reduced-motion: reduce) {
+  .art-trend {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+}
