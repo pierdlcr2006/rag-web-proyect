@@ -168,3 +168,306 @@
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.05) transparent;
 }
+
+/* ════════════════════════════════════════════════════════════════════
+   LANDING (TalKent AI · Cobalt Brutalism) — estilos de la página de inicio.
+   El tema oscuro se aplica solo en el contenedor de la landing (clases
+   bg-[#0A0A0A]/text en LandingPage), no globalmente, para no afectar la app.
+   ════════════════════════════════════════════════════════════════════ */
+:root {
+  --cobalt: #2563eb;
+  --ink: #f4f2ed;
+  --bg-landing: #0a0a0a;
+}
+
+.font-heading {
+  font-family: 'Space Grotesk', sans-serif;
+}
+.font-body {
+  font-family: 'Fira Sans', sans-serif;
+}
+
+.progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--cobalt);
+  transform-origin: 0%;
+  z-index: 100;
+}
+
+.brutal-border {
+  border: 4px solid var(--ink);
+}
+
+.line-reveal {
+  overflow: hidden;
+  display: block;
+  /* Espacio superior dentro de la máscara para que no se corten los acentos. */
+  padding-top: 0.18em;
+  margin-top: -0.18em;
+}
+
+.gsap-word {
+  display: inline-block;
+  white-space: nowrap;
+}
+.gsap-char {
+  display: inline-block;
+  will-change: transform;
+}
+
+.newspaper-header {
+  border-top: 4px solid var(--ink);
+  border-bottom: 2px solid var(--ink);
+  padding: 1rem 0;
+  text-align: center;
+}
+
+.hero-title span.block {
+  display: block;
+}
+
+/* Entrada de la vista About */
+@keyframes upIn {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.up-in {
+  opacity: 0;
+  animation: upIn 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* Fondo del contacto: líneas verticales con pulsos que suben */
+@keyframes contactPulse {
+  0% {
+    top: 110%;
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    top: -15%;
+    opacity: 0;
+  }
+}
+.contact-grid {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 8%;
+}
+.contact-line {
+  position: relative;
+  width: 1px;
+  height: 100%;
+  overflow: hidden;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgba(255, 255, 255, 0.08) 30%,
+    rgba(255, 255, 255, 0.08) 70%,
+    transparent
+  );
+}
+.contact-pulse {
+  position: absolute;
+  left: 0;
+  width: 1px;
+  height: 72px;
+  border-radius: 1px;
+  filter: blur(1px);
+  background: #2563eb;
+  opacity: 0;
+  animation: contactPulse 4.5s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .up-in {
+    animation: none;
+    opacity: 1;
+  }
+  .contact-pulse {
+    animation: none;
+  }
+}
+
+/* Marquee infinito (sección de contacto) */
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 28s linear infinite;
+}
+
+/* Órbita de tipos de archivo del hero */
+@keyframes orbitSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes orbitSpinRev {
+  to {
+    transform: rotate(-360deg);
+  }
+}
+.orbit-spin {
+  animation: orbitSpin 48s linear infinite;
+}
+.orbit-counter {
+  animation: orbitSpinRev 48s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .orbit-spin,
+  .orbit-counter {
+    animation: none;
+  }
+}
+
+/* Transición a pantalla completa (page transition) */
+.ptr {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  overflow: hidden;
+}
+.ptr.is-covering,
+.ptr.is-revealing {
+  pointer-events: all;
+}
+.ptr__panel {
+  position: absolute;
+  top: 0;
+  width: 33.334%;
+  height: 100%;
+  transform: translateY(-101%);
+}
+.ptr__panel--1 {
+  left: 0;
+  background: #2563eb;
+}
+.ptr__panel--2 {
+  left: 33.334%;
+  background: #0a0a0a;
+}
+.ptr__panel--3 {
+  left: 66.667%;
+  background: #2563eb;
+}
+.ptr__logo {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  z-index: 2;
+}
+.ptr__logo-img {
+  width: clamp(160px, 22vw, 240px);
+  height: auto;
+  filter: brightness(0) invert(1);
+}
+.ptr.is-covering .ptr__panel {
+  animation: ptrCover 0.5s cubic-bezier(0.77, 0, 0.18, 1) forwards;
+}
+.ptr.is-covering .ptr__panel--2 {
+  animation-delay: 0.06s;
+}
+.ptr.is-covering .ptr__panel--3 {
+  animation-delay: 0.12s;
+}
+.ptr.is-covering .ptr__logo {
+  animation: ptrLogoIn 0.3s ease 0.2s forwards;
+}
+.ptr.is-revealing .ptr__panel {
+  transform: translateY(0);
+  animation: ptrReveal 0.6s cubic-bezier(0.77, 0, 0.18, 1) forwards;
+}
+.ptr.is-revealing .ptr__panel--2 {
+  animation-delay: 0.06s;
+}
+.ptr.is-revealing .ptr__panel--3 {
+  animation-delay: 0.12s;
+}
+.ptr.is-revealing .ptr__logo {
+  opacity: 1;
+  animation: ptrLogoFade 0.4s ease forwards;
+}
+@keyframes ptrCover {
+  from {
+    transform: translateY(-101%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+@keyframes ptrReveal {
+  to {
+    transform: translateY(101%);
+  }
+}
+@keyframes ptrLogoIn {
+  to {
+    opacity: 1;
+  }
+}
+@keyframes ptrLogoFade {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Demo de chat: aparición de mensajes y "escribiendo" */
+@keyframes chatIn {
+  from {
+    opacity: 0;
+    transform: translateY(1.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.chat-msg {
+  opacity: 0;
+  animation: chatIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+@keyframes typingDot {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.3;
+  }
+  30% {
+    transform: translateY(-4px);
+    opacity: 1;
+  }
+}
+.typing-dot {
+  animation: typingDot 1s infinite;
+}
