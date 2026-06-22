@@ -41,7 +41,7 @@ export const BillingPage: React.FC = () => {
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => setMousePosition({ x: e.clientX, y: e.clientY });
     window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeMouseMoveListener?.(); // Cleanup logic simplified
+    return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
   return (

@@ -51,13 +51,13 @@ export const FilesSidebar: React.FC<Props> = ({ conversationId, onUploadClick })
   const files = data?.data || [];
 
   return (
-    <div className="w-80 h-full border-l border-white/5 bg-slate-950/50 flex flex-col z-20 backdrop-blur-xl">
-      <div className="h-16 flex items-center justify-between px-6 border-b border-white/5 shrink-0">
-        <h2 className="font-bold text-white/90 text-sm flex items-center gap-2">
-          <HardDrive size={16} className="text-primary" />
+    <div className="w-80 h-full border-l-2 border-white/10 bg-[#0A0A0A] flex flex-col z-20 font-body">
+      <div className="h-16 flex items-center justify-between px-6 border-b border-white/10 shrink-0">
+        <h2 className="font-heading font-bold text-xs uppercase tracking-[0.2em] text-[#F4F2ED] flex items-center gap-2">
+          <HardDrive size={16} className="text-[#2563EB]" />
           Contexto Actual
         </h2>
-        <div className="text-[10px] font-bold text-white/30 bg-white/5 px-2 py-1 rounded-md">
+        <div className="text-[10px] font-mono font-bold text-[#2563EB] bg-[#2563EB]/10 border border-[#2563EB]/25 px-2.5 py-1 rounded-none uppercase tracking-wider">
           {files.length} {files.length === 1 ? 'ARCHIVO' : 'ARCHIVOS'}
         </div>
       </div>
@@ -68,13 +68,13 @@ export const FilesSidebar: React.FC<Props> = ({ conversationId, onUploadClick })
             <Loader2 className="w-6 h-6 text-primary animate-spin" />
           </div>
         ) : files.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-center p-6 space-y-4">
-            <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center text-white/20">
-              <HardDrive size={24} />
+          <div className="flex flex-col items-center justify-center p-6 text-center border-2 border-dashed border-white/10 my-4 mx-2 rounded-none space-y-4">
+            <div className="w-12 h-12 bg-white/[0.02] border border-white/10 flex items-center justify-center text-white/20 rounded-none">
+              <HardDrive size={20} />
             </div>
             <div>
-              <p className="text-sm font-medium text-white/60">Caja Vacía</p>
-              <p className="text-xs text-white/40 mt-1">
+              <p className="text-xs font-heading font-bold uppercase tracking-wider text-white/60">Caja Vacía</p>
+              <p className="text-[11px] text-white/40 mt-1 leading-relaxed">
                 No hay archivos cargados en esta conversación.
               </p>
             </div>
@@ -86,21 +86,21 @@ export const FilesSidebar: React.FC<Props> = ({ conversationId, onUploadClick })
                 key={file.id}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                className="group p-3 rounded-xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] hover:border-white/10 transition-colors flex items-start gap-3"
+                exit={{ opacity: 0 }}
+                className="group p-3 rounded-none bg-white/[0.02] border border-white/10 hover:bg-white/[0.04] hover:border-[#2563EB] transition-colors flex items-start gap-3"
               >
-                <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center shrink-0">
+                <div className="w-9 h-9 rounded-none border border-white/10 bg-white/[0.03] flex items-center justify-center shrink-0">
                   {getFileIcon(file.originalName)}
                 </div>
                 
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-white/80 truncate" title={file.originalName}>
+                  <p className="text-xs font-bold text-white/80 truncate" title={file.originalName}>
                     {file.originalName}
                   </p>
                   <div className="flex items-center gap-2 mt-1">
-                    <span className="text-[10px] text-white/40">{formatBytes(file.sizeBytes)}</span>
+                    <span className="text-[10px] text-white/40 font-mono">{formatBytes(file.sizeBytes)}</span>
                     <span className="text-white/20">•</span>
-                    <span className="text-[10px] text-white/40 truncate">
+                    <span className="text-[9px] text-white/40 truncate font-mono uppercase">
                       {new Date(file.createdAt).toLocaleDateString('es-ES', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                     </span>
                   </div>
@@ -109,11 +109,11 @@ export const FilesSidebar: React.FC<Props> = ({ conversationId, onUploadClick })
                 {/* Status Indicator */}
                 <div className="shrink-0 flex items-center pt-1">
                   {(file.status === 'pending' || file.status === 'processing') ? (
-                    <Loader2 className="w-4 h-4 text-primary animate-spin" />
+                    <Loader2 className="w-4 h-4 text-[#2563EB] animate-spin" />
                   ) : file.status === 'error' ? (
-                    <div className="w-2 h-2 rounded-full bg-red-500" title="Error en el procesamiento" />
+                    <div className="w-2 h-2 rounded-none bg-red-500" title="Error en el procesamiento" />
                   ) : (
-                    <div className="w-2 h-2 rounded-full bg-emerald-500/50" title="Listo para usarse" />
+                    <div className="w-2 h-2 rounded-none bg-emerald-500/50" title="Listo para usarse" />
                   )}
                 </div>
               </motion.div>

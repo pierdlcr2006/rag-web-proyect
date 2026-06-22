@@ -108,7 +108,7 @@ export const FilesDashboardPage: React.FC = () => {
                   </div>
                   <div>
                     <p className="text-[10px] font-black text-white/30 uppercase tracking-widest">Documentos Activos</p>
-                    <p className="text-2xl font-black text-white/90 tracking-tighter">{data?.meta?.totalItems || 0}</p>
+                    <p className="text-2xl font-black text-white/90 tracking-tighter">{data?.total || 0}</p>
                   </div>
                 </div>
               </motion.div>
@@ -150,7 +150,7 @@ export const FilesDashboardPage: React.FC = () => {
                 <tbody className="divide-y divide-white/5">
                   {isLoading ? (
                     <tr><td colSpan={4} className="px-8 py-20 text-center text-white/20 font-bold animate-pulse">Consultando base de datos...</td></tr>
-                  ) : (data?.items?.length ?? 0) === 0 ? (
+                  ) : (data?.data?.length ?? 0) === 0 ? (
                     <tr>
                       <td colSpan={4} className="px-8 py-32 text-center">
                         <div className="flex flex-col items-center gap-4 opacity-30">
@@ -160,7 +160,7 @@ export const FilesDashboardPage: React.FC = () => {
                       </td>
                     </tr>
                   ) : (
-                    data?.items.map((file, idx) => (
+                    data?.data.map((file: any, idx: number) => (
                       <motion.tr 
                         key={file.id} 
                         initial={{ opacity: 0, x: -10 }}
