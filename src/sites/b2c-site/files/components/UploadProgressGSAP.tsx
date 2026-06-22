@@ -157,15 +157,15 @@ const FileRow: React.FC<{ entry: UploadFileEntry }> = ({ entry }) => {
   return (
     <div
       ref={rowRef}
-      className="relative rounded-2xl border border-white/[0.08] overflow-hidden"
+      className="relative rounded-none border border-white/15 overflow-hidden font-body"
       style={{ backgroundColor: cfg.bgColor, boxShadow: '0 0 0 1px #ffffff08' }}
     >
       {/* Content */}
       <div className="flex items-center gap-3 px-4 pt-4 pb-3">
         {/* Icon */}
         <div
-          className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
-          style={{ backgroundColor: `${cfg.color}18`, color: cfg.color }}
+          className="w-9 h-9 rounded-none border flex items-center justify-center flex-shrink-0"
+          style={{ backgroundColor: `${cfg.color}18`, borderColor: `${cfg.color}30`, color: cfg.color }}
         >
           {entry.stage === 'completed'
             ? <CheckCircle2 size={18} />
@@ -177,18 +177,18 @@ const FileRow: React.FC<{ entry: UploadFileEntry }> = ({ entry }) => {
 
         {/* Name + status */}
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-bold text-white/80 truncate">{entry.name}</p>
+          <p className="text-xs font-bold text-white/80 truncate">{entry.name}</p>
           <div className="flex items-center gap-1 mt-0.5">
             <span
               ref={labelRef}
-              className="text-[11px] font-semibold"
+              className="text-[10px] font-heading font-bold uppercase tracking-wider"
               style={{ color: cfg.color }}
             >
               {cfg.label}
             </span>
             <span
               ref={dotsRef}
-              className="text-[11px] font-mono w-4"
+              className="text-[10px] font-mono w-4"
               style={{ color: cfg.color }}
             />
           </div>
@@ -196,7 +196,7 @@ const FileRow: React.FC<{ entry: UploadFileEntry }> = ({ entry }) => {
 
         {/* Size + spinner */}
         <div className="flex-shrink-0 flex items-center gap-2">
-          <span className="text-[10px] text-white/30 font-medium">{formatSize(entry.size)}</span>
+          <span className="text-[10px] text-white/35 font-mono">{formatSize(entry.size)}</span>
           {['uploading', 'processing', 'embedding'].includes(entry.stage) && (
             <Loader2 size={14} className="animate-spin" style={{ color: cfg.color }} />
           )}
@@ -204,10 +204,10 @@ const FileRow: React.FC<{ entry: UploadFileEntry }> = ({ entry }) => {
       </div>
 
       {/* Progress bar track */}
-      <div className="mx-4 mb-4 h-1.5 rounded-full bg-white/[0.06] overflow-hidden relative">
+      <div className="mx-4 mb-4 h-2 rounded-none bg-white/[0.06] overflow-hidden relative border border-white/10">
         <div
           ref={barRef}
-          className="h-full rounded-full absolute left-0 top-0"
+          className="h-full rounded-none absolute left-0 top-0"
           style={{
             width: '0%',
             backgroundColor: cfg.barColor,
@@ -216,7 +216,7 @@ const FileRow: React.FC<{ entry: UploadFileEntry }> = ({ entry }) => {
         {/* Glow dot at bar tip */}
         <div
           ref={glowRef}
-          className="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full opacity-0"
+          className="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-none opacity-0"
           style={{
             right: `${100 - targetProgress}%`,
             backgroundColor: cfg.barColor,
@@ -228,7 +228,7 @@ const FileRow: React.FC<{ entry: UploadFileEntry }> = ({ entry }) => {
       {/* Stage label at bottom-right */}
       <div className="absolute bottom-2 right-4">
         <span
-          className="text-[9px] font-black uppercase tracking-[0.2em] opacity-40"
+          className="text-[9px] font-mono font-bold uppercase tracking-wider opacity-50"
           style={{ color: cfg.color }}
         >
           {Math.round(targetProgress)}%

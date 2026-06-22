@@ -116,7 +116,7 @@ export const AdminDashboardPage: React.FC = () => {
                     <XAxis dataKey="name" tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 11, fontWeight: 700 }} axisLine={false} tickLine={false} />
                     <YAxis tick={{ fill: 'rgba(255,255,255,0.2)', fontSize: 11 }} axisLine={false} tickLine={false} />
                     <Tooltip contentStyle={{ background: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 16, fontSize: 12, fontWeight: 700 }}
-                      formatter={(v: number) => [`$${v.toFixed(4)}`, 'Monto']} />
+                      formatter={(v: any) => [`$${parseFloat(v).toFixed(4)}`, 'Monto']} />
                     <Bar dataKey="cost" radius={[12, 12, 0, 0]}>
                       {cloudCostData.map((_, i) => <Cell key={i} fill={COLORS[i]} />)}
                     </Bar>

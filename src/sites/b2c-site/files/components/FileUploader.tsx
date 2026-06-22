@@ -98,38 +98,38 @@ export const FileUploader: React.FC<Props> = ({ conversationId, onClose, onUploa
   });
 
   return (
-    <div className="p-5 space-y-4">
+    <div className="p-5 space-y-4 font-body">
       {/* Drop zone */}
       <div
         {...getRootProps()}
         className={`
-          relative border-2 border-dashed rounded-2xl p-10 text-center cursor-pointer
+          relative border-2 border-dashed rounded-none p-10 text-center cursor-pointer
           transition-all duration-300 group
           ${isDragActive
-            ? 'border-primary bg-primary/10 scale-[1.02]'
-            : 'border-white/10 hover:border-white/25 hover:bg-white/[0.03]'}
+            ? 'border-[#2563EB] bg-[#2563EB]/10'
+            : 'border-white/15 hover:border-[#2563EB] hover:bg-white/[0.02]'}
         `}
       >
         <input {...getInputProps()} />
 
         {/* Animated ring on drag */}
         {isDragActive && (
-          <div className="absolute inset-0 rounded-2xl border-2 border-primary animate-ping opacity-30 pointer-events-none" />
+          <div className="absolute inset-0 rounded-none border-2 border-[#2563EB] animate-pulse opacity-30 pointer-events-none" />
         )}
 
-        <div className="flex flex-col items-center gap-3 pointer-events-none">
+        <div className="flex flex-col items-center gap-4 pointer-events-none">
           <div
-            className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-300
-              ${isDragActive ? 'bg-primary text-white scale-110' : 'bg-white/[0.05] text-white/30 group-hover:bg-white/[0.08] group-hover:text-white/50'}`}
+            className={`w-12 h-12 rounded-none border flex items-center justify-center transition-all duration-300
+              ${isDragActive ? 'bg-[#2563EB] border-[#2563EB] text-white' : 'bg-white/[0.03] border-white/10 text-white/30 group-hover:border-[#2563EB] group-hover:text-[#2563EB]'}`}
           >
-            <Upload size={24} />
+            <Upload size={20} />
           </div>
           <div>
-            <p className="text-sm font-bold text-white/60 group-hover:text-white/80 transition-colors">
+            <p className="text-xs font-heading font-bold uppercase tracking-wider text-white/60 group-hover:text-[#F4F2ED] transition-colors">
               {isDragActive ? 'Suelta aquí los archivos' : 'Arrastra archivos o haz clic'}
             </p>
-            <p className="text-xs text-white/25 mt-1">
-              PDF, imágenes, video, audio · Hasta {user ? PLAN_LIMITS[user.plan].maxSizeMB : 10} MB
+            <p className="text-[11px] text-white/30 mt-1.5 font-mono">
+              PDF, IMÁGENES, VIDEO, AUDIO · HASTA {user ? PLAN_LIMITS[user.plan].maxSizeMB : 10} MB
             </p>
           </div>
         </div>

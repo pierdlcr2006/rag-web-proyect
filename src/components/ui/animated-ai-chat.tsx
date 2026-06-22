@@ -43,7 +43,7 @@ interface Message {
 
 interface AnimatedAIChatProps {
     messages?: Message[];
-    onSendMessage: (message: string) => void;
+    onSendMessage?: (message: string) => void;
     onUpload?: () => void;
     isStreaming?: boolean;
     isThinking?: boolean;
@@ -106,24 +106,24 @@ const PDFPreviewModal = ({ fileId, fileName, pageNumber, onClose }: { fileId: st
                 initial={{ scale: 0.95, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.95, opacity: 0 }}
-                className="relative w-full max-w-5xl h-full bg-[#121212] rounded-3xl border border-white/10 shadow-2xl flex flex-col overflow-hidden"
+                className="relative w-full max-w-5xl h-full bg-[#0A0A0A] rounded-none border-2 border-white/20 shadow-[12px_12px_0px_#2563EB] flex flex-col overflow-hidden"
             >
                 {/* Header */}
                 <div className="flex items-center justify-between p-4 border-b border-white/10">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center text-red-500">
+                        <div className="w-10 h-10 rounded-none border border-red-500/20 bg-red-500/10 flex items-center justify-center text-red-500">
                             <FileText size={20} />
                         </div>
                         <div>
-                            <h3 className="text-sm font-bold text-white/90">{fileName}</h3>
-                            <p className="text-[10px] text-white/40 uppercase tracking-widest font-black">
+                            <h3 className="text-sm font-heading font-bold uppercase tracking-wider text-[#F4F2ED]">{fileName}</h3>
+                            <p className="text-[10px] text-white/40 uppercase tracking-[0.2em] font-heading font-bold">
                                 {pageNumber ? `Página ${pageNumber} (Recorte Original)` : 'Previsualización de Documento'}
                             </p>
                         </div>
                     </div>
                     <button 
                         onClick={onClose}
-                        className="p-2 hover:bg-white/5 rounded-full text-white/40 hover:text-white transition-colors"
+                        className="p-2 border border-transparent hover:border-white/20 hover:bg-white/5 rounded-none text-white/40 hover:text-white transition-all cursor-pointer"
                     >
                         <XIcon size={20} />
                     </button>
@@ -164,8 +164,8 @@ const SourceCard = ({ source, onPreview }: { source: any, onPreview: (id: string
         <motion.div 
             layout
             className={cn(
-                "flex flex-col bg-white/[0.03] border border-white/5 rounded-2xl overflow-hidden transition-all hover:bg-white/[0.06] group",
-                isExpanded ? "ring-1 ring-primary/20 bg-white/[0.08]" : ""
+                "flex flex-col bg-white/[0.02] border border-white/10 rounded-none overflow-hidden transition-all hover:bg-white/[0.04] hover:border-[#2563EB] group",
+                isExpanded ? "border-[#2563EB] bg-white/[0.04]" : ""
             )}
         >
             {/* Visual Thumbnail (Only if pageNumber is available) */}
@@ -194,7 +194,7 @@ const SourceCard = ({ source, onPreview }: { source: any, onPreview: (id: string
                     
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end p-3 pointer-events-none">
                         <div className="flex items-center gap-2">
-                            <div className="px-2 py-1 rounded-md bg-black/60 backdrop-blur-md border border-white/10 text-[9px] font-bold text-white/80 uppercase tracking-wider">
+                            <div className="px-2 py-1 rounded-none bg-black/85 border border-white/20 text-[9px] font-heading font-bold text-[#F4F2ED] uppercase tracking-[0.2em]">
                                 {(() => {
                                     const ext = source.fileName?.split('.').pop()?.toLowerCase();
                                     if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext || '')) return 'IMAGEN';
@@ -209,7 +209,7 @@ const SourceCard = ({ source, onPreview }: { source: any, onPreview: (id: string
                         onClick={() => onPreview(source.fileId, source.fileName, source.pageNumber)}
                         className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/20"
                     >
-                        <div className="p-2 rounded-full bg-primary text-white shadow-xl scale-90 group-hover:scale-100 transition-transform">
+                        <div className="p-3 rounded-none bg-[#2563EB] text-white shadow-xl scale-90 group-hover:scale-100 transition-all border border-white/25 hover:bg-white hover:text-black">
                             <Eye size={20} />
                         </div>
                     </button>
@@ -221,13 +221,13 @@ const SourceCard = ({ source, onPreview }: { source: any, onPreview: (id: string
                     onClick={() => setIsExpanded(!isExpanded)}
                     className="flex-1 flex items-center gap-3 text-left min-w-0"
                 >
-                    <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                    <div className="w-8 h-8 rounded-none border border-[#2563EB]/25 bg-[#2563EB]/10 flex items-center justify-center text-[#2563EB]">
                         <FileText size={16} />
                     </div>
                     <div className="flex-1 min-w-0">
                         <p className="text-xs font-bold text-white/80 truncate">{source.fileName}</p>
-                        <p className="text-[10px] text-white/40">
-                            Página {source.pageNumber || '?'} • Similitud {(source.similarity * 100).toFixed(0)}%
+                        <p className="text-[10px] text-white/45 font-mono">
+                            PÁG. {source.pageNumber || '?'} • SIMILITUD {(source.similarity * 100).toFixed(0)}%
                         </p>
                     </div>
                 </button>
@@ -235,7 +235,7 @@ const SourceCard = ({ source, onPreview }: { source: any, onPreview: (id: string
                 <div className="flex items-center gap-1">
                     <button 
                         onClick={() => setIsExpanded(!isExpanded)}
-                        className="p-1.5 text-white/20 hover:text-white/40"
+                        className="p-1.5 text-white/20 hover:text-white/40 cursor-pointer"
                     >
                         {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
                     </button>
@@ -250,8 +250,8 @@ const SourceCard = ({ source, onPreview }: { source: any, onPreview: (id: string
                         exit={{ height: 0, opacity: 0 }}
                         className="px-3 pb-3"
                     >
-                        <div className="p-3 bg-black/20 rounded-xl border border-white/5 space-y-2">
-                            <div className="flex items-center gap-2 text-[9px] font-black text-primary/60 uppercase tracking-widest">
+                        <div className="p-3 bg-black/40 rounded-none border border-white/10 space-y-2">
+                            <div className="flex items-center gap-2 text-[9px] font-heading font-bold text-[#2563EB] uppercase tracking-widest">
                                 <Sparkles size={10} /> Fragmento Citado
                             </div>
                             <p className="text-[11px] leading-relaxed text-white/60 italic">
@@ -350,14 +350,14 @@ export const AnimatedAIChat = ({
 
     const handleSend = () => {
         if (value.trim() && !isStreaming) {
-            onSendMessage(value);
+            onSendMessage?.(value);
             setValue("");
             adjustHeight(true);
         }
     };
 
     return (
-        <div className="flex flex-col h-screen w-full bg-transparent text-white relative overflow-hidden">
+        <div className="flex flex-col h-screen w-full bg-transparent text-[#F4F2ED] relative overflow-hidden font-body">
             <AnimatePresence>
                 {previewFile && (
                     <PDFPreviewModal 
@@ -374,43 +374,30 @@ export const AnimatedAIChat = ({
                 <div className="max-w-3xl mx-auto space-y-12">
                     {messages.length === 0 && !isStreaming ? (
                         <motion.div 
-                            className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-8"
+                            className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-8 relative z-10"
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                         >
                             <div className="space-y-3">
-                                <motion.div
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.2 }}
-                                    className="inline-block"
-                                >
-                                    <h1 className="text-4xl font-medium tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white/90 to-white/40 pb-1">
-                                        ¿Cómo puedo ayudarte hoy?
+                                <div className="inline-block">
+                                    <h1 className="font-heading text-4xl sm:text-5xl font-bold tracking-tighter uppercase text-[#F4F2ED]">
+                                        ¿CÓMO PUEDO <span className="text-[#2563EB]">AYUDARTE HOY?</span>
                                     </h1>
-                                    <motion.div 
-                                        className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"
-                                        initial={{ width: 0, opacity: 0 }}
-                                        animate={{ width: "100%", opacity: 1 }}
-                                        transition={{ delay: 0.5, duration: 0.8 }}
-                                    />
-                                </motion.div>
-                                <p className="text-sm text-white/40">Escribe un comando o haz una pregunta sobre tus documentos.</p>
+                                    <div className="h-0.5 bg-gradient-to-r from-transparent via-[#2563EB]/30 to-transparent w-full mt-3" />
+                                </div>
+                                <p className="font-body text-xs text-white/45 tracking-wide">Escribe un comando o haz una pregunta sobre tus documentos.</p>
                             </div>
 
-                            <div className="flex flex-wrap items-center justify-center gap-2">
+                            <div className="flex flex-wrap items-center justify-center gap-3">
                                 {commandSuggestions.map((suggestion, index) => (
-                                    <motion.button
+                                    <button
                                         key={suggestion.prefix}
                                         onClick={() => { setValue(suggestion.prefix + ' '); textareaRef.current?.focus(); }}
-                                        className="flex items-center gap-2 px-4 py-2 bg-white/[0.02] hover:bg-white/[0.05] rounded-xl text-sm text-white/60 hover:text-white/90 transition-all border border-white/[0.05]"
-                                        initial={{ opacity: 0, y: 10 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{ delay: index * 0.1 }}
+                                        className="flex items-center gap-2 px-4 py-2 bg-white/[0.02] border border-white/10 hover:bg-[#2563EB]/10 hover:border-[#2563EB] hover:text-[#F4F2ED] rounded-none text-xs text-white/60 font-heading uppercase tracking-widest transition-all cursor-pointer group"
                                     >
-                                        {suggestion.icon}
+                                        <span className="text-[#2563EB] group-hover:text-white transition-colors">{suggestion.icon}</span>
                                         <span>{suggestion.label}</span>
-                                    </motion.button>
+                                    </button>
                                 ))}
                             </div>
                         </motion.div>
@@ -421,20 +408,20 @@ export const AnimatedAIChat = ({
                                     key={msg.id}
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    className={cn("flex gap-4", msg.role === 'user' ? "flex-row-reverse" : "flex-row")}
+                                    className={cn("flex gap-4 relative z-10", msg.role === 'user' ? "flex-row-reverse" : "flex-row")}
                                 >
                                     <div className={cn(
-                                        "max-w-[85%] p-4 rounded-2xl",
+                                        "max-w-[85%] p-4 rounded-none font-body",
                                         msg.role === 'user' 
-                                            ? "bg-white/5 border border-white/10 text-white/90" 
-                                            : "bg-transparent text-white/80"
+                                            ? "bg-[#2563EB]/10 border-2 border-[#2563EB] text-[#F4F2ED]" 
+                                            : "bg-white/[0.02] border border-white/10 text-[#F4F2ED]/90 border-l-4 border-l-[#2563EB]"
                                     )}>
                                         <p className="text-[15px] leading-relaxed whitespace-pre-wrap">{msg.content}</p>
                                         
                                         {/* Sources Rendering */}
                                         {msg.role === 'assistant' && Array.isArray(msg.sourcesUsed) && msg.sourcesUsed.length > 0 && (
                                             <div className="mt-8 space-y-4">
-                                                <div className="flex items-center gap-3 text-[10px] font-black text-primary/40 uppercase tracking-[0.3em]">
+                                                <div className="flex items-center gap-3 text-[10px] font-heading font-bold text-[#2563EB] uppercase tracking-[0.25em]">
                                                     <Sparkles size={12} /> Evidencia Visual y Referencias
                                                 </div>
                                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -452,9 +439,9 @@ export const AnimatedAIChat = ({
                                 <motion.div 
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    className="flex flex-col gap-4"
+                                    className="flex flex-col gap-4 relative z-10"
                                 >
-                                    <div className="max-w-[85%] p-4 text-white/80">
+                                    <div className="max-w-[85%] p-4 text-white/85 bg-white/[0.01] border border-white/5 border-l-4 border-l-[#2563EB] rounded-none">
                                         <p className="text-[15px] leading-relaxed whitespace-pre-wrap">
                                             {streamingText}
                                         </p>
@@ -462,7 +449,7 @@ export const AnimatedAIChat = ({
                                         {/* Streaming Sources */}
                                         {Array.isArray(streamingSources) && streamingSources.length > 0 && (
                                             <div className="mt-8 space-y-4">
-                                                <div className="flex items-center gap-3 text-[10px] font-black text-primary/40 uppercase tracking-[0.3em]">
+                                                <div className="flex items-center gap-3 text-[10px] font-heading font-bold text-[#2563EB] uppercase tracking-[0.25em]">
                                                     <LoaderIcon size={12} className="animate-spin" /> Analizando Evidencia Visual
                                                 </div>
                                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -483,17 +470,17 @@ export const AnimatedAIChat = ({
                                         >
                                             <LoadingBreadcrumb
                                                 text={(() => {
-                                                    if (!isThinking) return "IA escribiendo...";
+                                                    if (!isThinking) return "IA ESCRIBIENDO...";
                                                     const labels: Record<RagStage, string> = {
-                                                        idle: "IA pensando...",
-                                                        validating: "Validando seguridad...",
-                                                        analyzing: "Analizando consulta...",
-                                                        searching: "Buscando en fuentes visuales...",
-                                                        generating: "Generando respuesta..."
+                                                        idle: "IA PENSANDO...",
+                                                        validating: "VALIDANDO SEGURIDAD...",
+                                                        analyzing: "ANALIZANDO CONSULTA...",
+                                                        searching: "BUSCANDO EN FUENTES VISUALES...",
+                                                        generating: "GENERANDO RESPUESTA..."
                                                     };
                                                     return labels[currentStage || 'idle'];
                                                 })()}
-                                                className="px-4 py-2"
+                                                className="px-4 py-2 font-heading uppercase text-xs tracking-wider text-[#2563EB]"
                                             />
                                         </motion.div>
                                     </AnimatePresence>
@@ -511,7 +498,7 @@ export const AnimatedAIChat = ({
                         {showCommandPalette && (
                             <motion.div 
                                 ref={commandPaletteRef}
-                                className="absolute bottom-full left-0 right-0 mb-4 backdrop-blur-xl bg-black/90 rounded-2xl z-50 shadow-2xl border border-white/10 overflow-hidden"
+                                className="absolute bottom-full left-0 right-0 mb-4 bg-[#111111] border-2 border-[#2563EB] rounded-none z-50 shadow-[6px_6px_0px_rgba(37,99,235,0.2)] overflow-hidden"
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, y: 10 }}
@@ -522,16 +509,16 @@ export const AnimatedAIChat = ({
                                             key={suggestion.prefix}
                                             className={cn(
                                                 "flex items-center gap-3 px-4 py-3 cursor-pointer transition-colors",
-                                                activeSuggestion === index ? "bg-white/10 text-white" : "text-white/60 hover:bg-white/5"
+                                                activeSuggestion === index ? "bg-[#2563EB] text-white" : "text-white/60 hover:bg-[#2563EB]/10"
                                             )}
                                             onClick={() => { setValue(suggestion.prefix + ' '); setShowCommandPalette(false); }}
                                         >
                                             <div className="text-white/40">{suggestion.icon}</div>
                                             <div className="flex flex-col">
-                                                <span className="text-sm font-medium">{suggestion.label}</span>
-                                                <span className="text-[10px] opacity-50">{suggestion.description}</span>
+                                                <span className="text-xs font-heading font-bold uppercase tracking-wider">{suggestion.label}</span>
+                                                <span className="text-[10px] font-body text-white/45">{suggestion.description}</span>
                                             </div>
-                                            <span className="text-xs text-white/20 ml-auto">{suggestion.prefix}</span>
+                                            <span className="text-xs font-mono text-white/20 ml-auto">{suggestion.prefix}</span>
                                         </div>
                                     ))}
                                 </div>
@@ -539,10 +526,8 @@ export const AnimatedAIChat = ({
                         )}
                     </AnimatePresence>
 
-                    <motion.div 
-                        className="relative backdrop-blur-3xl bg-white/[0.02] rounded-3xl border border-white/10 shadow-2xl overflow-hidden group"
-                        initial={{ scale: 0.98 }}
-                        animate={{ scale: 1 }}
+                    <div 
+                        className="relative bg-[#111111] border-2 border-white/15 focus-within:border-[#2563EB] rounded-none shadow-[8px_8px_0px_rgba(37,99,235,0.15)] focus-within:shadow-[8px_8px_0px_rgba(37,99,235,0.3)] transition-all overflow-hidden group"
                     >
                         <div className="p-4">
                             <Textarea 
@@ -553,7 +538,7 @@ export const AnimatedAIChat = ({
                                 onFocus={() => setInputFocused(true)}
                                 onBlur={() => setInputFocused(false)}
                                 placeholder="Haz una pregunta o usa / para comandos..."
-                                className="resize-none py-2 px-4 text-white/90 placeholder:text-white/10 min-h-[60px]"
+                                className="resize-none py-2 px-4 text-[#F4F2ED] placeholder:text-white/30 min-h-[60px]"
                                 showRing={false}
                             />
                         </div>
@@ -562,41 +547,39 @@ export const AnimatedAIChat = ({
                             <div className="flex items-center gap-2">
                                 <button 
                                     onClick={onUpload}
-                                    className="p-2 text-white/40 hover:text-white transition-colors rounded-xl hover:bg-white/5 group/btn relative"
+                                    className="p-2.5 text-white/40 hover:text-[#2563EB] hover:bg-white/[0.04] transition-all rounded-none border border-transparent hover:border-white/10 group/btn relative cursor-pointer"
                                 >
                                     <Paperclip size={18}/>
-                                    <span className="absolute -top-10 left-1/2 -translate-x-1/2 bg-white/10 backdrop-blur-md text-[10px] px-2 py-1 rounded opacity-0 group-hover/btn:opacity-100 transition-opacity whitespace-nowrap">Adjuntar Archivo</span>
+                                    <span className="absolute -top-10 left-1/2 -translate-x-1/2 bg-[#111111] border border-white/15 font-heading text-[9px] uppercase tracking-widest px-2 py-1.5 rounded-none opacity-0 group-hover/btn:opacity-100 transition-opacity whitespace-nowrap text-white z-50">Adjuntar Archivo</span>
                                 </button>
                                 <button 
                                     onClick={() => setShowCommandPalette(!showCommandPalette)}
-                                    className={cn("p-2 text-white/40 hover:text-white transition-colors rounded-xl hover:bg-white/5", showCommandPalette && "text-white bg-white/10")}
+                                    className={cn("p-2.5 text-white/40 hover:text-[#2563EB] hover:bg-white/[0.04] transition-all rounded-none border border-transparent hover:border-white/10 cursor-pointer", showCommandPalette && "text-[#2563EB] bg-[#2563EB]/10 border-[#2563EB]/30")}
                                 >
                                     <Command size={18}/>
                                 </button>
                             </div>
                             
-                            <motion.button 
+                            <button 
                                 onClick={handleSend}
                                 disabled={!value.trim() || isStreaming}
-                                whileHover={{ scale: 1.02 }}
-                                whileTap={{ scale: 0.98 }}
                                 className={cn(
-                                    "px-5 py-2 rounded-2xl flex items-center gap-2 transition-all font-bold text-sm",
-                                    value.trim() ? "bg-white text-black shadow-[0_0_20px_rgba(255,255,255,0.1)]" : "text-white/20 bg-white/5"
+                                    "px-6 py-3 flex items-center gap-2 transition-all font-heading font-bold uppercase tracking-widest text-xs rounded-none border border-[#F4F2ED]/20 hover:border-[#F4F2ED] disabled:opacity-45 disabled:cursor-not-allowed cursor-pointer",
+                                    value.trim() ? "bg-[#2563EB] text-white hover:bg-white hover:text-black" : "text-white/20 bg-white/5 border-transparent"
                                 )}
                             >
                                 {isStreaming ? <LoaderIcon className="animate-spin" size={16}/> : <SendIcon size={16}/>}
                                 <span>Enviar</span>
-                            </motion.button>
+                            </button>
                         </div>
-                    </motion.div>
+                    </div>
                 </div>
             </div>
 
             {/* Mouse Tracking Glow */}
             {inputFocused && (
                 <motion.div 
-                    className="fixed w-[40rem] h-[40rem] rounded-full pointer-events-none z-0 opacity-[0.03] bg-gradient-to-r from-violet-500 via-fuchsia-500 to-indigo-500 blur-[100px]"
+                    className="fixed w-[40rem] h-[40rem] rounded-full pointer-events-none z-0 opacity-[0.02] bg-[#2563EB] blur-[140px]"
                     animate={{ x: mousePosition.x - 300, y: mousePosition.y - 300 }}
                     transition={{ type: "spring", damping: 30, stiffness: 100 }}
                 />
