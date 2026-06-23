@@ -36,6 +36,10 @@ export const LoginPage: React.FC = () => {
     if (targetPath) navigate(targetPath);
   };
 
+  const handleGoogleLogin = () => {
+    window.location.href = '/api/auth/google';
+  };
+
   return (
     <>
       {showPreloader && <Preloader onComplete={handlePreloaderComplete} duration={1.2} />}
@@ -135,6 +139,7 @@ export const LoginPage: React.FC = () => {
               <button
                 type="button"
                 aria-label="Continuar con Google"
+                onClick={handleGoogleLogin}
                 className="mt-6 w-full border-2 border-white/15 hover:border-[#2563EB] hover:bg-[#2563EB]/10 flex items-center justify-center gap-3 py-3.5 font-heading font-bold uppercase text-sm tracking-widest transition-colors cursor-pointer"
               >
                 <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current">

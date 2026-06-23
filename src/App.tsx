@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import LandingPage from './sites/landing/LandingPage';
 import { LoginPage } from './sites/b2c-site/auth/pages/LoginPage';
 import { RegisterPage } from './sites/b2c-site/auth/pages/RegisterPage';
+import { GoogleCallbackPage } from './sites/b2c-site/auth/pages/GoogleCallbackPage';
 import { ChatPage } from './sites/b2c-site/chat/pages/ChatPage';
 import { BillingPage } from './sites/b2c-site/billing/pages/BillingPage';
 import { AdminDashboardPage } from './sites/business-site/admin/pages/AdminDashboardPage';
@@ -65,6 +66,7 @@ function App() {
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/auth/google/callback" element={<GoogleCallbackPage />} />
           
           {/* General Protected Routes (Restricted for Admins) */}
           <Route element={<ProtectedRoute />}>

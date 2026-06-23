@@ -53,6 +53,19 @@ interface AnimatedAIChatProps {
     currentStage?: RagStage;
 }
 
+const MIN_RENDERABLE_SOURCE_SIMILARITY = 0.45;
+
+const getRenderableSources = (sources?: any[]) => {
+    if (!Array.isArray(sources)) return [];
+    return sources.filter((source) => {
+        if (typeof source?.similarity !== 'number') return true;
+        return source.similarity >= MIN_RENDERABLE_SOURCE_SIMILARITY;
+    });
+};
+
+const isInternalMessage = (message: Message) =>
+    message.content.startsWith('[SUGGESTED_QUESTIONS]');
+
 const Textarea = React.forwardRef<HTMLTextAreaElement, React.TextareaHTMLAttributes<HTMLTextAreaElement> & { showRing?: boolean }>(
     ({ className, showRing = true, ...props }, ref) => {
         return (
@@ -297,6 +310,14 @@ export const AnimatedAIChat = ({
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const scrollRef = useRef<HTMLDivElement>(null);
     const commandPaletteRef = useRef<HTMLDivElement>(null);
+    const visibleMessages = useMemo(
+        () => messages.filter((message) => !isInternalMessage(message)),
+        [messages],
+    );
+    const displayStreamingSources = useMemo(
+        () => getRenderableSources(streamingSources),
+        [streamingSources],
+    );
 
     const commandSuggestions = [
         { icon: <Sparkles size={14}/>, label: "Mejorar respuesta", prefix: "/mejorar", description: "Refina el tono y la claridad" },
@@ -385,7 +406,7 @@ export const AnimatedAIChat = ({
             {/* Messages Area */}
             <div ref={scrollRef} className="flex-1 overflow-y-auto px-6 py-10 scroll-smooth relative z-10">
                 <div className="max-w-3xl mx-auto space-y-12">
-                    {messages.length === 0 && !isStreaming ? (
+                    {visibleMessages.length === 0 && !isStreaming ? (
                         <motion.div 
                             className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-8 relative z-10"
                             initial={{ opacity: 0, y: 20 }}
@@ -416,37 +437,43 @@ export const AnimatedAIChat = ({
                         </motion.div>
                     ) : (
                         <>
-                            {messages.map((msg) => (
-                                <motion.div 
-                                    key={msg.id}
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    className={cn("flex gap-4 relative z-10", msg.role === 'user' ? "flex-row-reverse" : "flex-row")}
-                                >
-                                    <div className={cn(
-                                        "max-w-[85%] p-4 rounded-none font-body",
-                                        msg.role === 'user' 
-                                            ? "bg-[#2563EB]/10 border-2 border-[#2563EB] text-[#F4F2ED]" 
-                                            : "bg-white/[0.02] border border-white/10 text-[#F4F2ED]/90 border-l-4 border-l-[#2563EB]"
-                                    )}>
-                                        <p className="text-[15px] leading-relaxed whitespace-pre-wrap">{msg.content}</p>
-                                        
-                                        {/* Sources Rendering */}
-                                        {msg.role === 'assistant' && Array.isArray(msg.sourcesUsed) && msg.sourcesUsed.length > 0 && (
-                                            <div className="mt-8 space-y-4">
-                                                <div className="flex items-center gap-3 text-[10px] font-heading font-bold text-[#2563EB] uppercase tracking-[0.25em]">
-                                                    <Sparkles size={12} /> Evidencia Visual y Referencias
+                            {visibleMessages.map((msg) => {
+                                const displaySources = msg.role === 'assistant'
+                                    ? getRenderableSources(msg.sourcesUsed)
+                                    : [];
+
+                                return (
+                                    <motion.div
+                                        key={msg.id}
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        className={cn("flex gap-4 relative z-10", msg.role === 'user' ? "flex-row-reverse" : "flex-row")}
+                                    >
+                                        <div className={cn(
+                                            "max-w-[85%] p-4 rounded-none font-body",
+                                            msg.role === 'user'
+                                                ? "bg-[#2563EB]/10 border-2 border-[#2563EB] text-[#F4F2ED]"
+                                                : "bg-white/[0.02] border border-white/10 text-[#F4F2ED]/90 border-l-4 border-l-[#2563EB]"
+                                        )}>
+                                            <p className="text-[15px] leading-relaxed whitespace-pre-wrap">{msg.content}</p>
+
+                                            {/* Sources Rendering */}
+                                            {displaySources.length > 0 && (
+                                                <div className="mt-8 space-y-4">
+                                                    <div className="flex items-center gap-3 text-[10px] font-heading font-bold text-[#2563EB] uppercase tracking-[0.25em]">
+                                                        <Sparkles size={12} /> Evidencia Visual y Referencias
+                                                    </div>
+                                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                        {displaySources.map((s, i) => (
+                                                            <SourceCard key={i} source={s} onPreview={(id, name, page) => setPreviewFile({ id, name, page })} />
+                                                        ))}
+                                                    </div>
                                                 </div>
-                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                                    {msg.sourcesUsed.map((s, i) => (
-                                                        <SourceCard key={i} source={s} onPreview={(id, name, page) => setPreviewFile({ id, name, page })} />
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-                                </motion.div>
-                            ))}
+                                            )}
+                                        </div>
+                                    </motion.div>
+                                );
+                            })}
 
                             {isStreaming && (
                                 <motion.div 
@@ -460,13 +487,13 @@ export const AnimatedAIChat = ({
                                         </p>
                                         
                                         {/* Streaming Sources */}
-                                        {Array.isArray(streamingSources) && streamingSources.length > 0 && (
+                                        {displayStreamingSources.length > 0 && (
                                             <div className="mt-8 space-y-4">
                                                 <div className="flex items-center gap-3 text-[10px] font-heading font-bold text-[#2563EB] uppercase tracking-[0.25em]">
                                                     <LoaderIcon size={12} className="animate-spin" /> Analizando Evidencia Visual
                                                 </div>
                                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                                    {streamingSources.map((s, i) => (
+                                                    {displayStreamingSources.map((s, i) => (
                                                         <SourceCard key={i} source={s} onPreview={(id, name, page) => setPreviewFile({ id, name, page })} />
                                                     ))}
                                                 </div>

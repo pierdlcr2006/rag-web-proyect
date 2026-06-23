@@ -2,10 +2,10 @@ import React, { useCallback, useState } from 'react';
 import { useDropzone, type Accept, type FileRejection } from 'react-dropzone';
 import { Upload } from 'lucide-react';
 import { useAuthStore, UserPlan } from '../../auth/store/authStore';
-import api from '../../../../shared/lib/axios';
 import { useQueryClient } from '@tanstack/react-query';
 import { UploadProgressGSAP } from './UploadProgressGSAP';
 import type { UploadFileEntry, UploadStage } from './UploadProgressGSAP';
+import { filesApi } from '../api/files.api';
 
 // Tipos soportados por el backend (MIME_TO_FILE_TYPE en plan-limits.constants.ts).
 // Mantener sincronizado: PDF, Word, imágenes, video y audio. NO incluye PowerPoint.
@@ -45,6 +45,8 @@ const PLAN_LIMITS = {
 
 // Time (ms) each intermediate stage is shown so the user sees the animation
 const STAGE_DELAY = 1200;
+const PROCESSING_POLL_INTERVAL = 2000;
+const PROCESSING_TIMEOUT = 5 * 60 * 1000;
 
 export const FileUploader: React.FC<Props> = ({ conversationId, onClose, onUploadSuccess }) => {
   const [entries, setEntries] = useState<UploadFileEntry[]>([]);
@@ -61,20 +63,12 @@ export const FileUploader: React.FC<Props> = ({ conversationId, onClose, onUploa
     setEntries((prev) => prev.map((e) => (e.id === id ? { ...e, stage: 'error', error: message } : e)));
 
   const uploadFile = async (file: File, id: string) => {
-    const formData = new FormData();
-    formData.append('file', file);
-    if (conversationId) formData.append('conversationId', conversationId);
-
     try {
       // ── Stage 1: Uploading ───────────────────────────────────────────────
       setStage(id, 'uploading');
 
-      await api.post('/files/upload', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-        onUploadProgress: (e) => {
-          const pct = Math.round((e.loaded * 100) / (e.total || 100));
-          setProgress(id, pct);
-        },
+      const uploaded = await filesApi.upload(file, conversationId, (pct) => {
+        setProgress(id, pct);
       });
 
       // ── Stage 2: Processing (show while backend parses the file) ─────────
@@ -83,7 +77,11 @@ export const FileUploader: React.FC<Props> = ({ conversationId, onClose, onUploa
 
       // ── Stage 3: Initializing embeddings ─────────────────────────────────
       setStage(id, 'embedding');
-      await delay(STAGE_DELAY);
+      const processedFile = await waitForFileProcessing(uploaded.fileId);
+
+      if (processedFile.status === 'error') {
+        throw new Error(processedFile.errorMessage || 'No se pudo procesar el archivo');
+      }
 
       // ── Stage 4: Completed ───────────────────────────────────────────────
       setStage(id, 'completed');
@@ -92,16 +90,8 @@ export const FileUploader: React.FC<Props> = ({ conversationId, onClose, onUploa
     } catch (err: unknown) {
       // Mostrar el motivo real del backend (ej. tipo no soportado / límite de plan)
       // en vez de un genérico "Error al procesar".
-      const res = (err as { response?: { data?: { message?: string | string[] } } }).response;
-      const raw = res?.data?.message;
-      const backendMsg = Array.isArray(raw) ? raw[0] : raw;
-      const friendly =
-        backendMsg && /unsupported file type/i.test(backendMsg)
-          ? 'Tipo de archivo no soportado'
-          : backendMsg && /not allowed on the .* plan/i.test(backendMsg)
-            ? 'No disponible en tu plan'
-            : backendMsg || 'No se pudo subir el archivo';
-      setError(id, friendly);
+      setError(id, getFriendlyUploadError(err));
+      queryClient.invalidateQueries({ queryKey: ['files'] });
     }
   };
 
@@ -196,3 +186,36 @@ export const FileUploader: React.FC<Props> = ({ conversationId, onClose, onUploa
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+const waitForFileProcessing = async (fileId: string) => {
+  const startedAt = Date.now();
+
+  while (Date.now() - startedAt < PROCESSING_TIMEOUT) {
+    const file = await filesApi.get(fileId);
+    if (file.status === 'ready' || file.status === 'error') {
+      return file;
+    }
+    await delay(PROCESSING_POLL_INTERVAL);
+  }
+
+  throw new Error('El archivo sigue procesándose. Revisa el estado en la barra lateral.');
+};
+
+const getFriendlyUploadError = (err: unknown): string => {
+  const res = (err as { response?: { data?: { message?: string | string[] } } }).response;
+  const raw = res?.data?.message;
+  const backendMsg = Array.isArray(raw) ? raw[0] : raw;
+  const message = backendMsg || (err instanceof Error ? err.message : undefined);
+
+  if (message && /unsupported file type/i.test(message)) {
+    return 'Tipo de archivo no soportado';
+  }
+  if (message && /not allowed on the .* plan/i.test(message)) {
+    return 'No disponible en tu plan';
+  }
+  if (message && /quota exceeded|too many requests|rate-limits|free_tier/i.test(message)) {
+    return 'Gemini agotó su cuota temporalmente. Intenta nuevamente más tarde.';
+  }
+
+  return message || 'No se pudo subir el archivo';
+};

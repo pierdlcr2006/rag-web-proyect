@@ -173,7 +173,14 @@ export const FilesDashboardPage: React.FC = () => {
                             <div className="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center text-white/40 group-hover:text-primary group-hover:bg-primary/5 transition-all">
                               <FileText size={18} />
                             </div>
-                            <span className="text-sm font-bold text-white/80 group-hover:text-white transition-colors">{file.originalName}</span>
+                            <div className="min-w-0">
+                              <span className="block text-sm font-bold text-white/80 group-hover:text-white transition-colors truncate">{file.originalName}</span>
+                              {file.status === 'error' && (
+                                <span className="block mt-1 max-w-md text-[11px] text-red-300/80 font-mono leading-snug">
+                                  {file.errorMessage || 'Error al procesar el archivo'}
+                                </span>
+                              )}
+                            </div>
                           </div>
                         </td>
                         <td className="px-8 py-5">
@@ -182,8 +189,8 @@ export const FilesDashboardPage: React.FC = () => {
                             file.status === 'ready' ? "bg-green-500/5 border-green-500/20 text-green-400" :
                             file.status === 'error' ? "bg-red-500/5 border-red-500/20 text-red-400" : "bg-blue-500/5 border-blue-500/20 text-blue-400 animate-pulse"
                           )}>
-                            {file.status === 'ready' ? <CheckCircle2 size={12}/> : <Clock size={12}/>}
-                            {file.status === 'ready' ? 'Listo' : 'Procesando'}
+                            {file.status === 'ready' ? <CheckCircle2 size={12}/> : file.status === 'error' ? <AlertCircle size={12}/> : <Clock size={12}/>}
+                            {file.status === 'ready' ? 'Listo' : file.status === 'error' ? 'Error' : 'Procesando'}
                           </div>
                         </td>
                         <td className="px-8 py-5 text-xs font-bold text-white/40 tracking-wider">

@@ -8,7 +8,8 @@ import {
   FileText, 
   Loader2, 
   Plus, 
-  HardDrive 
+  HardDrive,
+  AlertCircle,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { filesApi } from '../api/files.api';
@@ -87,7 +88,11 @@ export const FilesSidebar: React.FC<Props> = ({ conversationId, onUploadClick })
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
-                className="group p-3 rounded-none bg-white/[0.02] border border-white/10 hover:bg-white/[0.04] hover:border-[#2563EB] transition-colors flex items-start gap-3"
+                className={`group p-3 rounded-none bg-white/[0.02] border transition-colors flex items-start gap-3 ${
+                  file.status === 'error'
+                    ? 'border-red-500/30 hover:bg-red-500/[0.03] hover:border-red-500/50'
+                    : 'border-white/10 hover:bg-white/[0.04] hover:border-[#2563EB]'
+                }`}
               >
                 <div className="w-9 h-9 rounded-none border border-white/10 bg-white/[0.03] flex items-center justify-center shrink-0">
                   {getFileIcon(file.originalName)}
@@ -104,6 +109,11 @@ export const FilesSidebar: React.FC<Props> = ({ conversationId, onUploadClick })
                       {new Date(file.createdAt).toLocaleDateString('es-ES', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                     </span>
                   </div>
+                  {file.status === 'error' && (
+                    <p className="mt-2 text-[10px] leading-snug text-red-300/80 font-mono">
+                      {file.errorMessage || 'Error al procesar el archivo'}
+                    </p>
+                  )}
                 </div>
 
                 {/* Status Indicator */}
@@ -111,7 +121,9 @@ export const FilesSidebar: React.FC<Props> = ({ conversationId, onUploadClick })
                   {(file.status === 'pending' || file.status === 'processing') ? (
                     <Loader2 className="w-4 h-4 text-[#2563EB] animate-spin" />
                   ) : file.status === 'error' ? (
-                    <div className="w-2 h-2 rounded-none bg-red-500" title="Error en el procesamiento" />
+                    <span title={file.errorMessage || 'Error en el procesamiento'}>
+                      <AlertCircle className="w-4 h-4 text-red-400" />
+                    </span>
                   ) : (
                     <div className="w-2 h-2 rounded-none bg-emerald-500/50" title="Listo para usarse" />
                   )}

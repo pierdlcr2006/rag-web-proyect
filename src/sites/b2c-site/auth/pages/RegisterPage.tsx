@@ -5,6 +5,9 @@ import { Mail, Lock, Loader2, ArrowRight, Check } from 'lucide-react';
 import Preloader from '../../../../components/landing/Preloader';
 import AuthAside from '../components/AuthAside';
 
+const GOOGLE_PATH =
+  'M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z';
+
 // Reglas del backend (RegisterDto): mín. 8 caracteres, 1 mayúscula y 1 número.
 const rules = [
   { id: 'len', label: 'Mínimo 8 caracteres', test: (p: string) => p.length >= 8 },
@@ -53,6 +56,10 @@ export const RegisterPage: React.FC = () => {
       }
       setIsLoading(false);
     }
+  };
+
+  const handleGoogleRegister = () => {
+    window.location.href = '/api/auth/google';
   };
 
   const inputCls =
@@ -191,6 +198,24 @@ export const RegisterPage: React.FC = () => {
                   Al crear tu cuenta aceptas los términos y la política de privacidad.
                 </p>
               </form>
+
+              <div className="mt-10 flex items-center gap-4">
+                <span className="h-px flex-1 bg-white/10" />
+                <span className="font-heading text-[10px] uppercase tracking-widest text-white/30">o regístrate con</span>
+                <span className="h-px flex-1 bg-white/10" />
+              </div>
+
+              <button
+                type="button"
+                aria-label="Registrarse con Google"
+                onClick={handleGoogleRegister}
+                className="mt-6 w-full border-2 border-white/15 hover:border-[#2563EB] hover:bg-[#2563EB]/10 flex items-center justify-center gap-3 py-3.5 font-heading font-bold uppercase text-sm tracking-widest transition-colors cursor-pointer"
+              >
+                <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current">
+                  <path d={GOOGLE_PATH} />
+                </svg>
+                Registrarse con Google
+              </button>
             </div>
           </div>
         </div>

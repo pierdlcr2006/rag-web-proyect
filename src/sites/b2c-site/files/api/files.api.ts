@@ -8,7 +8,14 @@ export interface FileResponse {
   fileType: string;
   sizeBytes: number;
   status: FileStatus;
+  errorMessage?: string;
+  conversationId?: string;
   createdAt: string;
+}
+
+export interface UploadResponse {
+  fileId: string;
+  status: FileStatus;
 }
 
 export interface PaginatedFiles {
@@ -26,11 +33,12 @@ export const filesApi = {
     return response.data;
   },
 
-  upload: async (file: File, onProgress?: (percent: number) => void) => {
+  upload: async (file: File, conversationId?: string, onProgress?: (percent: number) => void) => {
     const formData = new FormData();
     formData.append('file', file);
+    if (conversationId) formData.append('conversationId', conversationId);
     
-    const response = await api.post('/files/upload', formData, {
+    const response = await api.post<UploadResponse>('/files/upload', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
       onUploadProgress: (progressEvent) => {
         if (onProgress && progressEvent.total) {

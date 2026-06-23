@@ -29,6 +29,7 @@ interface AuthState {
   setAuth: (user: User, token: string) => void;
   login: (email: string, password: string) => Promise<User>;
   register: (email: string, password: string) => Promise<User>;
+  completeGoogleLogin: (accessToken: string) => Promise<User>;
   fetchMe: () => Promise<User>;
   refreshToken: () => Promise<void>;
   logout: () => void;
@@ -70,6 +71,11 @@ export const useAuthStore = create<AuthState>()(
           console.error('REGISTER ERROR:', error);
           throw error;
         }
+      },
+
+      completeGoogleLogin: async (accessToken) => {
+        set({ accessToken, isAuthenticated: true });
+        return get().fetchMe();
       },
 
       // Rehidrata el usuario actual desde el backend (rol, plan, createdAt frescos).
