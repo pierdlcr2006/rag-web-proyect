@@ -19,6 +19,7 @@ interface User {
   email: string;
   plan: UserPlan;
   role: UserRole;
+  createdAt?: string;
 }
 
 interface AuthState {
@@ -27,6 +28,8 @@ interface AuthState {
   isAuthenticated: boolean;
   setAuth: (user: User, token: string) => void;
   login: (email: string, password: string) => Promise<User>;
+  register: (email: string, password: string) => Promise<User>;
+  fetchMe: () => Promise<User>;
   refreshToken: () => Promise<void>;
   logout: () => void;
 }
@@ -55,6 +58,28 @@ export const useAuthStore = create<AuthState>()(
           console.error('LOGIN ERROR:', error);
           throw error;
         }
+      },
+
+      register: async (email, password) => {
+        try {
+          const response = await api.post('/auth/register', { email, password });
+          const { user, accessToken } = response.data;
+          set({ user, accessToken, isAuthenticated: true });
+          return user;
+        } catch (error) {
+          console.error('REGISTER ERROR:', error);
+          throw error;
+        }
+      },
+
+      // Rehidrata el usuario actual desde el backend (rol, plan, createdAt frescos).
+      // Si el access token expiró, el interceptor de axios hará /auth/refresh y
+      // reintentará automáticamente esta llamada.
+      fetchMe: async () => {
+        const response = await api.get('/auth/me');
+        const me: User = response.data;
+        set({ user: me, isAuthenticated: true });
+        return me;
       },
 
       refreshToken: async () => {

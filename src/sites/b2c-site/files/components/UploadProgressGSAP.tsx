@@ -184,7 +184,7 @@ const FileRow: React.FC<{ entry: UploadFileEntry }> = ({ entry }) => {
               className="text-[10px] font-heading font-bold uppercase tracking-wider"
               style={{ color: cfg.color }}
             >
-              {cfg.label}
+              {entry.stage === 'error' && entry.error ? entry.error : cfg.label}
             </span>
             <span
               ref={dotsRef}

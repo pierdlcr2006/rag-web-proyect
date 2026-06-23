@@ -1,11 +1,30 @@
 import React, { useCallback, useState } from 'react';
-import { useDropzone } from 'react-dropzone';
+import { useDropzone, type Accept, type FileRejection } from 'react-dropzone';
 import { Upload } from 'lucide-react';
 import { useAuthStore, UserPlan } from '../../auth/store/authStore';
 import api from '../../../../shared/lib/axios';
 import { useQueryClient } from '@tanstack/react-query';
 import { UploadProgressGSAP } from './UploadProgressGSAP';
 import type { UploadFileEntry, UploadStage } from './UploadProgressGSAP';
+
+// Tipos soportados por el backend (MIME_TO_FILE_TYPE en plan-limits.constants.ts).
+// Mantener sincronizado: PDF, Word, imágenes, video y audio. NO incluye PowerPoint.
+const ACCEPTED_TYPES: Accept = {
+  'application/pdf': ['.pdf'],
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
+  'application/msword': ['.doc'],
+  'image/jpeg': ['.jpg', '.jpeg'],
+  'image/png': ['.png'],
+  'image/gif': ['.gif'],
+  'image/webp': ['.webp'],
+  'video/mp4': ['.mp4'],
+  'video/quicktime': ['.mov'],
+  'video/x-msvideo': ['.avi'],
+  'audio/mpeg': ['.mp3'],
+  'audio/wav': ['.wav'],
+  'audio/ogg': ['.ogg'],
+  'audio/mp4': ['.m4a'],
+};
 
 const randomUUID = (): string =>
   typeof crypto !== 'undefined' && crypto.randomUUID
@@ -38,6 +57,9 @@ export const FileUploader: React.FC<Props> = ({ conversationId, onClose, onUploa
   const setProgress = (id: string, progress: number) =>
     setEntries((prev) => prev.map((e) => (e.id === id ? { ...e, progress } : e)));
 
+  const setError = (id: string, message: string) =>
+    setEntries((prev) => prev.map((e) => (e.id === id ? { ...e, stage: 'error', error: message } : e)));
+
   const uploadFile = async (file: File, id: string) => {
     const formData = new FormData();
     formData.append('file', file);
@@ -67,8 +89,19 @@ export const FileUploader: React.FC<Props> = ({ conversationId, onClose, onUploa
       setStage(id, 'completed');
       onUploadSuccess?.();
       queryClient.invalidateQueries({ queryKey: ['files'] });
-    } catch {
-      setStage(id, 'error');
+    } catch (err: unknown) {
+      // Mostrar el motivo real del backend (ej. tipo no soportado / límite de plan)
+      // en vez de un genérico "Error al procesar".
+      const res = (err as { response?: { data?: { message?: string | string[] } } }).response;
+      const raw = res?.data?.message;
+      const backendMsg = Array.isArray(raw) ? raw[0] : raw;
+      const friendly =
+        backendMsg && /unsupported file type/i.test(backendMsg)
+          ? 'Tipo de archivo no soportado'
+          : backendMsg && /not allowed on the .* plan/i.test(backendMsg)
+            ? 'No disponible en tu plan'
+            : backendMsg || 'No se pudo subir el archivo';
+      setError(id, friendly);
     }
   };
 
@@ -92,8 +125,27 @@ export const FileUploader: React.FC<Props> = ({ conversationId, onClose, onUploa
     [conversationId],
   );
 
+  // Archivos rechazados en el cliente (tipo no soportado o demasiado grande):
+  // se muestran como fila de error sin intentar subirlos.
+  const onDropRejected = useCallback((rejections: FileRejection[]) => {
+    const rejectedEntries: UploadFileEntry[] = rejections.map(({ file, errors }) => {
+      const tooBig = errors.some((e) => e.code === 'file-too-large');
+      return {
+        id: randomUUID(),
+        name: file.name,
+        size: file.size,
+        stage: 'error' as UploadStage,
+        progress: 100,
+        error: tooBig ? 'Excede el tamaño permitido' : 'Tipo de archivo no soportado',
+      };
+    });
+    setEntries((prev) => [...prev, ...rejectedEntries]);
+  }, []);
+
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
+    onDropRejected,
+    accept: ACCEPTED_TYPES,
     maxSize: (user ? PLAN_LIMITS[user.plan].maxSizeMB : 10) * 1024 * 1024,
   });
 
@@ -129,7 +181,7 @@ export const FileUploader: React.FC<Props> = ({ conversationId, onClose, onUploa
               {isDragActive ? 'Suelta aquí los archivos' : 'Arrastra archivos o haz clic'}
             </p>
             <p className="text-[11px] text-white/30 mt-1.5 font-mono">
-              PDF, IMÁGENES, VIDEO, AUDIO · HASTA {user ? PLAN_LIMITS[user.plan].maxSizeMB : 10} MB
+              PDF, WORD, IMÁGENES, VIDEO, AUDIO · HASTA {user ? PLAN_LIMITS[user.plan].maxSizeMB : 10} MB
             </p>
           </div>
         </div>

@@ -24,8 +24,13 @@ api.interceptors.response.use(
     
     // If 401 and not already retrying
     if (error.response?.status === 401) {
-      // DON'T intercept refresh/login/logout requests to avoid infinite loops
-      const isAuthRequest = originalRequest.url?.includes('/auth/');
+      // DON'T intercept the endpoints that participate in the auth loop, to avoid
+      // infinite retries. Other protected /auth/* routes (e.g. /auth/me) SHOULD
+      // go through the refresh-and-retry flow like any normal request.
+      const url: string = originalRequest.url ?? '';
+      const isAuthRequest = ['/auth/refresh', '/auth/login', '/auth/logout', '/auth/register'].some((p) =>
+        url.includes(p),
+      );
       
       if (!originalRequest._retry && !isAuthRequest) {
         originalRequest._retry = true;

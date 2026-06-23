@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useCallback, useTransition, useMemo } from "react";
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { cn } from "@/lib/utils";
 import {
     ImageIcon,
@@ -95,17 +96,28 @@ const PDFPreviewModal = ({ fileId, fileName, pageNumber, onClose }: { fileId: st
         fetchUrl();
     }, [fileId, pageNumber, token]);
 
-    return (
-        <motion.div 
+    // Cerrar con Escape.
+    useEffect(() => {
+        const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+        window.addEventListener("keydown", onKey);
+        return () => window.removeEventListener("keydown", onKey);
+    }, [onClose]);
+
+    // Portal a document.body para escapar el contexto de apilamiento del chat
+    // (si no, la barra lateral se dibuja encima y tapa el botón de cerrar).
+    return createPortal(
+        <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            onClick={onClose}
             className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-10 bg-black/80 backdrop-blur-sm"
         >
-            <motion.div 
+            <motion.div
                 initial={{ scale: 0.95, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.95, opacity: 0 }}
+                onClick={(e) => e.stopPropagation()}
                 className="relative w-full max-w-5xl h-full bg-[#0A0A0A] rounded-none border-2 border-white/20 shadow-[12px_12px_0px_#2563EB] flex flex-col overflow-hidden"
             >
                 {/* Header */}
@@ -150,7 +162,8 @@ const PDFPreviewModal = ({ fileId, fileName, pageNumber, onClose }: { fileId: st
                     )}
                 </div>
             </motion.div>
-        </motion.div>
+        </motion.div>,
+        document.body,
     );
 };
 
