@@ -5,7 +5,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   X,
   Plus,
-  BookOpen,
   Sparkles,
   FileText,
   MessageSquare,
@@ -52,9 +51,12 @@ const NewNotebookScreen: React.FC<{
       >
         {/* Header */}
         <div className="text-center space-y-4">
-          <div className="inline-flex items-center justify-center w-14 h-14 bg-[#2563EB]/10 border-2 border-[#2563EB] text-[#2563EB] shadow-[4px_4px_0px_#F4F2ED] mb-3 rounded-none">
-            <BookOpen size={26} />
-          </div>
+          <img
+            src="/logo-cuaderno.png"
+            alt="Cuaderno"
+            className="mx-auto block h-36 w-auto mb-4 select-none"
+            decoding="async"
+          />
           <h1 className="font-heading text-4xl sm:text-5xl font-bold tracking-tighter uppercase text-[#F4F2ED]">
             Nuevo <span className="text-[#2563EB]">Cuaderno</span>
           </h1>

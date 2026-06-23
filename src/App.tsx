@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import LandingPage from './sites/landing/LandingPage';
 import { LoginPage } from './sites/b2c-site/auth/pages/LoginPage';
+import { RegisterPage } from './sites/b2c-site/auth/pages/RegisterPage';
 import { ChatPage } from './sites/b2c-site/chat/pages/ChatPage';
 import { BillingPage } from './sites/b2c-site/billing/pages/BillingPage';
 import { AdminDashboardPage } from './sites/business-site/admin/pages/AdminDashboardPage';
@@ -27,25 +28,27 @@ const queryClient = new QueryClient({
 });
 
 function App() {
-  const { user, isAuthenticated, refreshToken, logout } = useAuthStore();
+  const { user, isAuthenticated, fetchMe, logout } = useAuthStore();
 
-  // Fix stale sessions missing the 'role' field
+  // Al cargar la app: si hay sesión persistida, rehidrata el usuario actual desde
+  // el backend (GET /auth/me) para tener rol/plan/createdAt frescos. Si el token
+  // expiró, el interceptor de axios intenta /auth/refresh; si todo falla, logout.
   useEffect(() => {
-    if (isAuthenticated && !user) {
-      refreshToken().catch(() => {
-        logout();
-      });
-      
-      // Safety timeout: if after 5 seconds we still have no user, force logout
-      const timer = setTimeout(() => {
-        if (isAuthenticated && !user) {
-          console.error('Refresh timeout - forcing logout');
-          logout();
-        }
-      }, 5000);
-      return () => clearTimeout(timer);
-    }
-  }, [isAuthenticated, user, refreshToken, logout]);
+    if (!isAuthenticated) return;
+    fetchMe().catch(() => logout());
+
+    // Safety: si tras 5s seguimos sin usuario, cerrar sesión para evitar loops.
+    const timer = setTimeout(() => {
+      const s = useAuthStore.getState();
+      if (s.isAuthenticated && !s.user) {
+        console.error('fetchMe timeout - forcing logout');
+        s.logout();
+      }
+    }, 5000);
+    return () => clearTimeout(timer);
+    // Solo al montar.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // If we're authenticated but user data isn't loaded yet, show a loader to prevent redirect loops
   if (isAuthenticated && !user) {
@@ -61,7 +64,7 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<div className="p-8 text-center">Implementación de registro pendiente...</div>} />
+          <Route path="/register" element={<RegisterPage />} />
           
           {/* General Protected Routes (Restricted for Admins) */}
           <Route element={<ProtectedRoute />}>
