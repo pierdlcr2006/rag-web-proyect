@@ -314,10 +314,6 @@ export const AnimatedAIChat = ({
         () => messages.filter((message) => !isInternalMessage(message)),
         [messages],
     );
-    const displayStreamingSources = useMemo(
-        () => getRenderableSources(streamingSources),
-        [streamingSources],
-    );
 
     const commandSuggestions = [
         { icon: <Sparkles size={14}/>, label: "Mejorar respuesta", prefix: "/mejorar", description: "Refina el tono y la claridad" },
@@ -485,20 +481,8 @@ export const AnimatedAIChat = ({
                                         <p className="text-[15px] leading-relaxed whitespace-pre-wrap">
                                             {streamingText}
                                         </p>
-                                        
-                                        {/* Streaming Sources */}
-                                        {displayStreamingSources.length > 0 && (
-                                            <div className="mt-8 space-y-4">
-                                                <div className="flex items-center gap-3 text-[10px] font-heading font-bold text-[#2563EB] uppercase tracking-[0.25em]">
-                                                    <LoaderIcon size={12} className="animate-spin" /> Analizando Evidencia Visual
-                                                </div>
-                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                                    {displayStreamingSources.map((s, i) => (
-                                                        <SourceCard key={i} source={s} onPreview={(id, name, page) => setPreviewFile({ id, name, page })} />
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        )}
+                                        {/* Las fuentes/recortes del documento se muestran SOLO al terminar
+                                            la respuesta (en el mensaje ya completado), no durante el streaming. */}
                                     </div>
                                     
                                     <AnimatePresence>
